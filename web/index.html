@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Gezegen Terazisi</title>
+<style>
+  :root {
+    --kagit: #f3ead8; --murekkep: #1d1b2e; --soluk: #6d6578; --cizgi: #d9cdb4;
+    --gunes: #f2a33a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--kagit); color: var(--murekkep);
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden; user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+  .sahne { position: relative; height: 100vh; display: grid; grid-template-rows: auto 1fr auto; padding: 3.2vh 4vw 2.6vh 13vw; }
+  .gunes { position: absolute; left: -34vh; top: 50%; width: 60vh; height: 60vh; transform: translateY(-50%);
+           border-radius: 50%; background: var(--gunes); }
+  .gunes::after { content: "GÜNEŞ"; position: absolute; right: 7vh; top: 50%; transform: translateY(-50%) rotate(-90deg);
+                  font-weight: 800; letter-spacing: .35em; font-size: 2vh; color: #8a4f0a; }
+
+  /* üst: seçili gezegenin büyük okuması */
+  .okuma { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 3vw; border-bottom: 3px solid var(--murekkep); padding-bottom: 2vh; }
+  .yer { font-size: 3vh; font-weight: 700; color: var(--soluk); }
+  .yer b { color: var(--murekkep); }
+  .sayi { font-size: 17vh; line-height: .9; font-weight: 900; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+  .sayi small { font-size: .32em; font-weight: 800; letter-spacing: 0; margin-left: .15em; }
+  .bilgi { max-width: 34vw; font-size: 2.6vh; line-height: 1.35; color: var(--murekkep); padding-bottom: 1.2vh; }
+  .bilgi em { font-style: normal; font-weight: 800; }
+
+  /* orta: gezegen dizisi ve çubuklar */
+  .dizi { display: grid; grid-template-columns: repeat(10, 1fr); align-items: end; gap: 1vw; padding-top: 2vh; min-height: 0; }
+  .gez { display: grid; grid-template-rows: auto 1fr auto auto; height: 100%; justify-items: center; cursor: pointer; min-height: 0; }
+  .gez svg { width: 100%; max-height: 13vh; overflow: visible; margin-bottom: 1.6vh; }
+  .kolon { width: 62%; display: flex; align-items: flex-end; min-height: 0; }
+  .cubuk { width: 100%; background: var(--murekkep); border-radius: 3px 3px 0 0; transition: height .6s cubic-bezier(.2,.8,.2,1); }
+  .gez .ad { margin-top: 1vh; font-weight: 800; font-size: 2.1vh; }
+  .gez .kg { font-size: 2vh; color: var(--soluk); font-variant-numeric: tabular-nums; height: 2.6vh; }
+  .gez.secili .cubuk { background: var(--renk); }
+  .gez.secili .ad { text-decoration: underline 4px var(--renk); text-underline-offset: 6px; }
+  .gez.dunya .cubuk { background: #2f7ac2; }
+  .gez.dunya .kg:not(:empty)::after { content: " · sen"; font-weight: 700; color: #2f7ac2; }
+
+  /* alt: kütle notu */
+  .alt { display: flex; justify-content: space-between; align-items: center; padding-top: 1.6vh; border-top: 1px solid var(--cizgi);
+         font-size: 2.2vh; color: var(--soluk); margin-top: 1.4vh; }
+  .alt b { color: var(--murekkep); }
+  .deneme { display: none; align-items: center; gap: 1vw; font-size: 1.8vh; }
+  .deneme input { width: 22vw; accent-color: var(--murekkep); }
+  body.demo .deneme { display: flex; }
+
+  /* tartı boşken */
+  .bekle { position: absolute; inset: 0 0 0 13vw; display: grid; place-items: center; text-align: center;
+           transition: opacity .4s; }
+  .okuma, .dizi, .alt { transition: opacity .5s; }
+  body:not(.dolu) .okuma, body:not(.dolu) .alt { opacity: 0; }
+  body:not(.dolu) .dizi { opacity: .22; }
+  .bekle h1 { font-size: 12vh; font-weight: 900; letter-spacing: -.03em; line-height: 1; }
+  .bekle p { font-size: 3vh; color: var(--soluk); margin-top: 2.4vh; }
+  .bekle .ok { display: inline-block; margin-top: 4vh; font-size: 7vh; animation: zipla 1.4s ease-in-out infinite; }
+  @keyframes zipla { 50% { transform: translateY(1.6vh); } }
+  body.dolu .bekle { opacity: 0; pointer-events: none; }
+  .durum-yazi { font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="sahne">
+  <div class="gunes"></div>
+
+  <div class="okuma">
+    <div>
+      <div class="yer"><b id="secAd">Mars</b>'ta tartı şunu gösterirdi</div>
+      <div class="sayi"><span id="secKg">0</span><small>kg</small></div>
+    </div>
+    <div class="bilgi" id="secBilgi"></div>
+  </div>
+
+  <div class="dizi" id="dizi"></div>
+
+  <div class="alt">
+    <div>Kütlen her yerde aynı: <b id="kutle">0 kg</b>. Değişen, gezegenin seni ne kadar güçlü çektiği.</div>
+    <div class="durum-yazi" id="durum"></div>
+    <label class="deneme">Deneme: <input id="kaydirici" type="range" min="0" max="80" step="0.5" value="0"></label>
+  </div>
+
+  <div class="bekle">
+    <div>
+      <h1>Tartıya çık!</h1>
+      <p>Bakalım Ay'da, Mars'ta, Jüpiter'de kaç kilo gelirsin.</p>
+      <span class="ok">↓</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// Yüzey çekimi (m/s²): NASA Planetary Fact Sheet. Dünya 9,8.
+const GEZEGENLER = [
+  { ad: 'Merkür', ek: "'de",  g: 3.7,  r: 16, renk: '#9b8f86', bilgi: "Güneş'e en yakın gezegen. Bir yılı yalnızca <em>88 gün</em> sürer." },
+  { ad: 'Venüs',  ek: "'te",  g: 8.9,  r: 26, renk: '#d9a441', bilgi: "En sıcak gezegen: yüzeyi ortalama <em>464 °C</em>. Fırından bile sıcak!" },
+  { ad: 'Dünya',  ek: "'da",  g: 9.8,  r: 27, renk: '#2f7ac2', bilgi: "Şu an buradasın. Tartının gösterdiği sayı, Dünya'nın seni çekme gücü." },
+  { ad: 'Ay',     ek: "'da",  g: 1.6,  r: 11, renk: '#a7a3a0', bilgi: "Ay'da yaklaşık <em>6 kat</em> hafif gelirsin. Astronotlar bu yüzden zıplayarak yürüdü." },
+  { ad: 'Mars',   ek: "'ta",  g: 3.7,  r: 19, renk: '#c4512b', bilgi: "Kızıl gezegen. Burada Dünya'dakinin <em>üçte biri</em> kadar gelirsin; çok daha yükseğe zıplarsın." },
+  { ad: 'Jüpiter',ek: "'de",  g: 23.1, r: 52, renk: '#c98a5a', bilgi: "En büyük gezegen ve bir gaz devi. Burada Dünya'dakinin <em>2 katından fazla</em> gelirsin." },
+  { ad: 'Satürn', ek: "'de",  g: 9.0,  r: 44, renk: '#d8b56a', bilgi: "Halkalarıyla ünlü. Çekimi Dünya'ya çok yakın ve tam <em>274 uydusu</em> var." },
+  { ad: 'Uranüs', ek: "'te",  g: 8.7,  r: 33, renk: '#79c3c9', bilgi: "Yan yatmış hâlde döner, bir buz devidir. Bir yılı <em>84 Dünya yılı</em> sürer." },
+  { ad: 'Neptün', ek: "'de",  g: 11.0, r: 32, renk: '#3f5fc4', bilgi: "Güneş'e en uzak gezegen. Güneş Sistemi'nin <em>en hızlı rüzgârları</em> burada eser." },
+  { ad: 'Plüton', ek: "'da",  g: 0.6,  r: 9,  renk: '#b49a84', bilgi: "Bir cüce gezegen. Burada neredeyse <em>tüy gibi</em> hafif olursun." },
+];
+const G_DUNYA = 9.8;
+
+function gezegenSvg(p) {
+  const w = 120, h = 110, cx = w / 2, cy = h / 2;
+  let ic = `<circle cx="${cx}" cy="${cy}" r="${p.r}" fill="${p.renk}"/>`;
+  if (p.ad === 'Jüpiter') {
+    for (const [dy, k] of [[-28, 7], [-12, 9], [6, 6], [22, 8]])
+      ic += `<rect x="${cx - p.r}" y="${cy + dy}" width="${2 * p.r}" height="${k}" fill="#9c5f37" opacity=".55" clip-path="url(#k-${p.ad})"/>`;
+    ic += `<ellipse cx="${cx + 16}" cy="${cy + 12}" rx="10" ry="6" fill="#a8452b" opacity=".8"/>`;
+    ic = `<clipPath id="k-${p.ad}"><circle cx="${cx}" cy="${cy}" r="${p.r}"/></clipPath>` + ic;
+  }
+  if (p.ad === 'Satürn') {
+    ic = `<ellipse cx="${cx}" cy="${cy}" rx="${p.r + 20}" ry="9" fill="none" stroke="#8d7440" stroke-width="5" transform="rotate(-14 ${cx} ${cy})"/>` + ic +
+         `<path d="M ${cx - p.r - 20} ${cy + 4} A ${p.r + 20} 9 0 0 0 ${cx + p.r + 20} ${cy - 4}" fill="none" stroke="#8d7440" stroke-width="5" transform="rotate(-14 ${cx} ${cy})"/>`;
+  }
+  if (p.ad === 'Dünya') {
+    ic += `<path d="M ${cx - 14} ${cy - 18} q 10 -6 16 2 q 4 8 -6 12 q -8 4 -4 12 q -12 -4 -6 -26 z" fill="#4f9d58"/>
+           <path d="M ${cx + 6} ${cy + 4} q 12 -2 14 8 q -6 10 -14 6 z" fill="#4f9d58"/>`;
+  }
+  if (p.ad === 'Mars') ic += `<ellipse cx="${cx - 4}" cy="${cy - p.r + 4}" rx="7" ry="3" fill="#f3ead8" opacity=".9"/>`;
+  if (p.ad === 'Ay') ic += `<circle cx="${cx - 3}" cy="${cy - 2}" r="3" fill="#8b8784"/><circle cx="${cx + 4}" cy="${cy + 4}" r="2" fill="#8b8784"/>`;
+  return `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true">${ic}</svg>`;
+}
+
+const dizi = document.getElementById('dizi');
+const ogeler = GEZEGENLER.map((p, i) => {
+  const d = document.createElement('div');
+  d.className = 'gez' + (p.ad === 'Dünya' ? ' dunya' : '');
+  d.style.setProperty('--renk', p.renk);
+  d.innerHTML = `${gezegenSvg(p)}<div class="kolon"><div class="cubuk" style="height:0"></div></div><div class="ad">${p.ad}</div><div class="kg"></div>`;
+  d.addEventListener('click', () => { secili = i; elle = Date.now(); ciz(); });
+  dizi.appendChild(d);
+  return d;
+});
+
+const sayiBicim = (x) => x.toLocaleString('tr-TR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+let kg = 0, kararli = false, secili = 4, elle = 0, demo = false;
+
+function ciz() {
+  const enCok = Math.max(...GEZEGENLER.map((p) => p.g));
+  GEZEGENLER.forEach((p, i) => {
+    const o = ogeler[i];
+    const deger = kg * p.g / G_DUNYA;
+    o.classList.toggle('secili', i === secili);
+    o.querySelector('.cubuk').style.height = (kg > 0 ? (p.g / enCok) * 100 : 0) + '%';
+    o.querySelector('.kg').textContent = kg > 0 ? sayiBicim(deger) + ' kg' : '';
+  });
+  const p = GEZEGENLER[secili];
+  document.getElementById('secAd').textContent = p.ad;
+  document.querySelector('.yer').innerHTML = `<b>${p.ad}</b>${p.ek} tartı şunu gösterirdi`;
+  document.getElementById('secKg').textContent = sayiBicim(kg * p.g / G_DUNYA);
+  document.getElementById('secBilgi').innerHTML = p.bilgi;
+  document.getElementById('kutle').textContent = sayiBicim(kg) + ' kg';
+  document.getElementById('durum').textContent = kg > 0 && !kararli ? 'ölçülüyor… kıpırdama!' : '';
+  document.body.classList.toggle('dolu', kg > 0);
+}
+
+// Kimse dokunmazsa gezegenler sırayla dolaşır (Dünya hariç, en ilginçleri önce)
+const TUR = [4, 3, 5, 0, 6, 9, 1, 7, 8];
+let turSira = 0;
+setInterval(() => {
+  if (kg > 0 && kararli && Date.now() - elle > 9000) { secili = TUR[turSira++ % TUR.length]; ciz(); }
+}, 4500);
+
+async function oku() {
+  if (demo) return;
+  try {
+    const r = await fetch('/olcum', { cache: 'no-store' });
+    const d = await r.json();
+    kg = d.kg || 0; kararli = !!d.kararli;
+    ciz();
+  } catch (e) {
+    demo = true; document.body.classList.add('demo');
+  }
+}
+setInterval(oku, 250);
+oku();
+
+// Deneme modu: tartı bağlı değilken kaydırıcı ile
+const kaydirici = document.getElementById('kaydirici');
+kaydirici.addEventListener('input', () => { kg = +kaydirici.value; kararli = true; ciz(); });
+const q = new URLSearchParams(location.search);
+if (q.has('kg')) { demo = true; document.body.classList.add('demo'); kg = +q.get('kg'); kararli = true; kaydirici.value = kg; }
+if (q.has('gezegen')) secili = Math.max(0, GEZEGENLER.findIndex((p) => p.ad === q.get('gezegen')));
+ciz();
+</script>
+</body>
+</html>

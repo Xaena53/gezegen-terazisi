@@ -11,7 +11,7 @@ Ucuz bir dijital banyo tartısının yük hücreleri, bir HX711 yükselticisi ve
 - Jumper kablolar, mikro USB kablo, USB güç (powerbank olur)
 - Tablet / telefon / projeksiyonlu bilgisayar
 
-Güncel fiyatlı liste: `belgeler/` ve LinkedIn içerik klasöründeki `alisveris-listesi.md`.
+Fiyatlı parça listesi: `belgeler/alisveris-listesi.md` (Kasım 2026; almadan önce güncel fiyata bakın).
 
 ## Bağlantı
 1. Tartının kapağını aç, 4 yük hücresinin kablolarını kartından ayır (genelde her birinde 3 kablo: kırmızı, beyaz, siyah).
@@ -36,3 +36,6 @@ Doğrudan bağlantı: `index.html?kg=30&gezegen=Mars`.
 
 ## Veri
 NASA Planetary Fact Sheet yüzey çekimi değerleri. Ders planı: `belgeler/ders-plani.md`.
+
+## Lisans
+MIT. Okulda, atölyede, evde serbestçe kullanın ve geliştirin.

@@ -55,7 +55,7 @@
 
   /* tartı boşken */
   .bekle { position: absolute; inset: 0 0 0 13vw; display: grid; place-items: center; text-align: center;
-           transition: opacity .4s; }
+           transition: opacity .4s; pointer-events: none; }
   .okuma, .dizi, .alt { transition: opacity .5s; }
   body:not(.dolu) .okuma, body:not(.dolu) .alt { opacity: 0; }
   body:not(.dolu) .dizi { opacity: .22; }
@@ -206,7 +206,6 @@ function ciz() {
     o.querySelector('.kg').textContent = kg > 0 ? sayiBicim(deger) + ' kg' : '';
   });
   const p = GEZEGENLER[secili];
-  document.getElementById('secAd').textContent = p.ad;
   document.querySelector('.yer').innerHTML = `<b>${p.ad}</b>${p.ek} tartı şunu gösterirdi`;
   document.getElementById('secKg').textContent = sayiBicim(kg * p.g / G_DUNYA);
   document.getElementById('secBilgi').innerHTML = p.bilgi;

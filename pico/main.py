@@ -63,6 +63,36 @@ async def olcum_dongusu():
         await asyncio.sleep_ms(80)       # HX711 10 örnek/sn verir
 
 
+TURLER = {"html": "text/html; charset=utf-8", "webp": "image/webp", "woff2": "font/woff2", "png": "image/png"}
+IZINLI = ("gezegenler/", "yazi/")          # yalnız bu klasörlerden dosya verilir
+
+
+def dosya_boyu(yol):
+    import os
+    try:
+        return os.stat(yol)[6]
+    except OSError:
+        return -1
+
+
+async def dosya_gonder(yazici, yol):
+    """Dosyayı 2 KB'lık parçalarla gönderir (Pico'nun belleği küçük)."""
+    boy = dosya_boyu(yol)
+    if boy < 0:
+        yanit(yazici, 404, "yok", "text/plain")
+        return
+    tur = TURLER.get(yol.rsplit(".", 1)[-1], "application/octet-stream")
+    yazici.write(b"HTTP/1.0 200 OK\r\nContent-Type: %s\r\nContent-Length: %d\r\n"
+                 b"Cache-Control: max-age=86400\r\nConnection: close\r\n\r\n" % (tur.encode(), boy))
+    with open(yol, "rb") as f:
+        while True:
+            parca = f.read(2048)
+            if not parca:
+                break
+            yazici.write(parca)
+            await yazici.drain()
+
+
 def yanit(yazici, kod, govde, tur="application/json"):
     if isinstance(govde, str):
         govde = govde.encode()
@@ -93,8 +123,11 @@ async def istemci(okuyucu, yazici):
                 ayar_yaz(olcum)
             yanit(yazici, 200, json.dumps({"tamam": ok, "katsayi": olcum.katsayi}))
         else:
-            with open("index.html", "rb") as f:
-                yanit(yazici, 200, f.read(), "text/html; charset=utf-8")
+            dosya = yol.split("?")[0].lstrip("/")
+            if dosya.startswith(IZINLI) and ".." not in dosya:
+                await dosya_gonder(yazici, dosya)
+            else:
+                await dosya_gonder(yazici, "index.html")
         await yazici.drain()
     except Exception as e:
         print("istemci hatası:", e)

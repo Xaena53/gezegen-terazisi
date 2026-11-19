@@ -23,7 +23,8 @@ Fiyatlı parça listesi: `belgeler/alisveris-listesi.md` (Kasım 2026; almadan �
 
 ## Kurulum
 1. Pico'ya MicroPython yükle (Pico 2 W için resmi UF2).
-2. Thonny ile `pico/hx711.py`, `pico/olcum.py`, `pico/main.py` dosyalarını ve `web/index.html`'i Pico'nun köküne kopyala.
+2. Thonny ile `pico/hx711.py`, `pico/olcum.py`, `pico/main.py` dosyalarını ve `web/` içindekileri (`index.html`,
+   `gezegenler/`, `yazi/`) Pico'nun köküne kopyala. Toplam ~600 KB; Pico 2 W'nin 4 MB belleğine rahat sığar.
 3. Tartı boşken Pico'ya güç ver; açılışta kendini sıfırlar.
 4. Tabletten `Gezegen-Terazisi` ağına bağlan (şifre `main.py` içinde), `http://192.168.4.1` aç.
 5. **Bir kez kalibrasyon:** bilinen bir ağırlık koy (ör. 10 kg'lık bir kova su) ve
@@ -38,6 +39,8 @@ Doğrudan bağlantı: `index.html?kg=30&gezegen=Mars`.
 
 ## Veri
 NASA Planetary Fact Sheet yüzey çekimi değerleri. Ders planı: `belgeler/ders-plani.md`.
+
+Gezegen çizimleri Higgsfield (yapay zekâ) ile üretildi. Yazı tipi: Fraunces, SIL Open Font License 1.1 (`web/yazi/OFL.txt`).
 
 ## Lisans
 MIT. Okulda, atölyede, evde serbestçe kullanın ve geliştirin.

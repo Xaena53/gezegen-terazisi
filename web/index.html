@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<title>Gezegen Terazisi</title>
+<title>Gezegen Terazisi · Mars'ta kaç kilo gelirsin?</title>
+<meta name="description" content="Çocuklar için açık kaynak eğitim seti: tartıya çık, Ay'da, Mars'ta, Jüpiter'de tartının ne göstereceğini gör. Kütle her yerde aynı, değişen çekim.">
 <style>
   :root {
     --kagit: #f3ead8; --murekkep: #1d1b2e; --soluk: #6d6578; --cizgi: #d9cdb4;
@@ -36,7 +37,7 @@
   .gez { display: grid; grid-template-rows: auto 1fr auto auto; height: 100%; justify-items: center; cursor: pointer; min-height: 0; }
   .gez svg { width: 100%; max-height: 13vh; overflow: visible; margin-bottom: 1.6vh; }
   .kolon { width: 62%; display: flex; align-items: flex-end; min-height: 0; }
-  .cubuk { width: 100%; background: var(--murekkep); border-radius: 3px 3px 0 0; transition: height .6s cubic-bezier(.2,.8,.2,1); }
+  .cubuk { width: 100%; height: var(--oran, 0%); background: var(--murekkep); border-radius: 3px 3px 0 0; transition: height .6s cubic-bezier(.2,.8,.2,1), width .6s cubic-bezier(.2,.8,.2,1); }
   .gez .ad { margin-top: 1vh; font-weight: 800; font-size: 2.1vh; }
   .gez .kg { font-size: 2vh; color: var(--soluk); font-variant-numeric: tabular-nums; height: 2.6vh; }
   .gez.secili .cubuk { background: var(--renk); }
@@ -63,7 +64,42 @@
   .bekle .ok { display: inline-block; margin-top: 4vh; font-size: 7vh; animation: zipla 1.4s ease-in-out infinite; }
   @keyframes zipla { 50% { transform: translateY(1.6vh); } }
   body.dolu .bekle { opacity: 0; pointer-events: none; }
+  body.demo:not(.dolu) .alt { opacity: 1; }
+  body.demo:not(.dolu) .alt > div:first-child { visibility: hidden; }
+  .bekle .demo-yazi { display: none; }
+  body.demo .bekle .demo-yazi { display: block; }
+  body.demo .bekle .tarti-yazi { display: none; }
   .durum-yazi { font-weight: 700; }
+
+  /* telefon ve dikey ekran: gezegenler alt alta, yatay çubuk */
+  @media (max-aspect-ratio: 4/5) {
+    .sahne { height: 100svh; padding: 6vw 5vw 4vw; }
+    .gunes { left: auto; right: -26vw; top: -26vw; width: 56vw; height: 56vw; transform: none; }
+    .gunes::after { display: none; }
+    .okuma { grid-template-columns: 1fr; gap: 1.2vh; padding-bottom: 1.6vh; }
+    .yer { font-size: 4.4vw; max-width: 70vw; }
+    .sayi { font-size: 21vw; }
+    .bilgi { max-width: none; font-size: 3.8vw; padding-bottom: 0; }
+    .dizi { grid-template-columns: 1fr; grid-auto-rows: 1fr; align-items: stretch; gap: .4vh; padding-top: 1.4vh; }
+    .gez { grid-template-columns: 10vw 19vw 1fr 17vw; grid-template-rows: none; height: auto; align-items: center;
+           justify-items: start; column-gap: 2.5vw; }
+    .gez svg { width: 10vw; max-height: 5vh; margin: 0; }
+    .kolon { width: 100%; height: 2.4vh; align-items: stretch; }
+    .cubuk { height: 100%; width: var(--oran, 0%); border-radius: 0 3px 3px 0; }
+    .gez .ad { margin: 0; font-size: 4vw; grid-column: 2; grid-row: 1; }
+    .gez .kolon { grid-column: 3; grid-row: 1; }
+    .gez .kg { grid-column: 4; grid-row: 1; }
+    body:not(.dolu) .dizi { opacity: .12; }
+    .gez .kg { height: auto; font-size: 3.6vw; justify-self: end; }
+    .gez.dunya .kg:not(:empty)::after { content: ""; }
+    .gez.secili .ad { text-decoration-thickness: 3px; text-underline-offset: 4px; }
+    .alt { flex-direction: column; align-items: flex-start; gap: 1.2vh; font-size: 3.4vw; }
+    .deneme { font-size: 3.4vw; gap: 3vw; }
+    .deneme input { width: 62vw; }
+    .bekle { inset: 0; padding: 0 6vw; }
+    .bekle h1 { font-size: 15vw; }
+    .bekle p { font-size: 4.2vw; }
+  }
 </style>
 </head>
 <body>
@@ -83,13 +119,14 @@
   <div class="alt">
     <div>Kütlen her yerde aynı: <b id="kutle">0 kg</b>. Değişen, gezegenin seni ne kadar güçlü çektiği.</div>
     <div class="durum-yazi" id="durum"></div>
-    <label class="deneme">Deneme: <input id="kaydirici" type="range" min="0" max="80" step="0.5" value="0"></label>
+    <label class="deneme">Kilonu seç: <input id="kaydirici" type="range" min="0" max="80" step="0.5" value="0"></label>
   </div>
 
   <div class="bekle">
     <div>
-      <h1>Tartıya çık!</h1>
+      <h1><span class="tarti-yazi">Tartıya çık!</span><span class="demo-yazi">Kaç kilosun?</span></h1>
       <p>Bakalım Ay'da, Mars'ta, Jüpiter'de kaç kilo gelirsin.</p>
+      <p class="demo-yazi">Burada tartı yok: aşağıdaki kaydırıcıyla kilonu seç.</p>
       <span class="ok">↓</span>
     </div>
   </div>
@@ -117,7 +154,7 @@ function gezegenSvg(p) {
   if (p.ad === 'Jüpiter') {
     for (const [dy, k] of [[-28, 7], [-12, 9], [6, 6], [22, 8]])
       ic += `<rect x="${cx - p.r}" y="${cy + dy}" width="${2 * p.r}" height="${k}" fill="#9c5f37" opacity=".55" clip-path="url(#k-${p.ad})"/>`;
-    ic += `<ellipse cx="${cx + 16}" cy="${cy + 12}" rx="10" ry="6" fill="#a8452b" opacity=".8"/>`;
+    ic += `<ellipse cx="${cx + 24}" cy="${cy + 30}" rx="9" ry="5" fill="#a8452b" opacity=".8"/>`;
     ic = `<clipPath id="k-${p.ad}"><circle cx="${cx}" cy="${cy}" r="${p.r}"/></clipPath>` + ic;
   }
   if (p.ad === 'Satürn') {
@@ -128,8 +165,20 @@ function gezegenSvg(p) {
     ic += `<path d="M ${cx - 14} ${cy - 18} q 10 -6 16 2 q 4 8 -6 12 q -8 4 -4 12 q -12 -4 -6 -26 z" fill="#4f9d58"/>
            <path d="M ${cx + 6} ${cy + 4} q 12 -2 14 8 q -6 10 -14 6 z" fill="#4f9d58"/>`;
   }
+  const yuz = () => {
+    const ex = p.r * 0.34, ey = cy - p.r * 0.06, er = Math.max(1.4, p.r * 0.085);
+    return `<g fill="#1d1b2e"><circle cx="${cx - ex}" cy="${ey}" r="${er}"/><circle cx="${cx + ex}" cy="${ey}" r="${er}"/></g>` +
+      `<path d="M ${cx - p.r * 0.2} ${cy + p.r * 0.16} Q ${cx} ${cy + p.r * 0.36} ${cx + p.r * 0.2} ${cy + p.r * 0.16}" fill="none" stroke="#1d1b2e" stroke-width="${Math.max(1.2, p.r * 0.07)}" stroke-linecap="round"/>` +
+      (p.r > 15 ? `<g fill="#e0695a" opacity=".45"><ellipse cx="${cx - p.r * 0.55}" cy="${cy + p.r * 0.14}" rx="${p.r * 0.13}" ry="${p.r * 0.08}"/><ellipse cx="${cx + p.r * 0.55}" cy="${cy + p.r * 0.14}" rx="${p.r * 0.13}" ry="${p.r * 0.08}"/></g>` : '');
+  };
   if (p.ad === 'Mars') ic += `<ellipse cx="${cx - 4}" cy="${cy - p.r + 4}" rx="7" ry="3" fill="#f3ead8" opacity=".9"/>`;
   if (p.ad === 'Ay') ic += `<circle cx="${cx - 3}" cy="${cy - 2}" r="3" fill="#8b8784"/><circle cx="${cx + 4}" cy="${cy + 4}" r="2" fill="#8b8784"/>`;
+  if (p.ad === 'Satürn') {
+    const on = ic.lastIndexOf('<path');
+    ic = ic.slice(0, on) + yuz() + ic.slice(on);
+  } else {
+    ic += yuz();
+  }
   return `<svg viewBox="0 0 ${w} ${h}" aria-hidden="true">${ic}</svg>`;
 }
 
@@ -138,7 +187,7 @@ const ogeler = GEZEGENLER.map((p, i) => {
   const d = document.createElement('div');
   d.className = 'gez' + (p.ad === 'Dünya' ? ' dunya' : '');
   d.style.setProperty('--renk', p.renk);
-  d.innerHTML = `${gezegenSvg(p)}<div class="kolon"><div class="cubuk" style="height:0"></div></div><div class="ad">${p.ad}</div><div class="kg"></div>`;
+  d.innerHTML = `${gezegenSvg(p)}<div class="kolon"><div class="cubuk"></div></div><div class="ad">${p.ad}</div><div class="kg"></div>`;
   d.addEventListener('click', () => { secili = i; elle = Date.now(); ciz(); });
   dizi.appendChild(d);
   return d;
@@ -153,7 +202,7 @@ function ciz() {
     const o = ogeler[i];
     const deger = kg * p.g / G_DUNYA;
     o.classList.toggle('secili', i === secili);
-    o.querySelector('.cubuk').style.height = (kg > 0 ? (p.g / enCok) * 100 : 0) + '%';
+    o.style.setProperty('--oran', (kg > 0 ? (p.g / enCok) * 100 : 0) + '%');
     o.querySelector('.kg').textContent = kg > 0 ? sayiBicim(deger) + ' kg' : '';
   });
   const p = GEZEGENLER[secili];

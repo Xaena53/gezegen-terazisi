@@ -4,6 +4,8 @@
 Ucuz bir dijital banyo tartısının yük hücreleri, bir HX711 yükselticisi ve Raspberry Pi Pico 2 W ile yapılır.
 İnternet gerekmez: Pico kendi Wi-Fi ağını açar, ekran tarayıcıda çalışır.
 
+**Tarayıcıda dene (tartısız deneme modu):** https://xaena53.github.io/gezegen-terazisi/web/
+
 ## Parçalar
 - Dijital banyo tartısı (köşelerinde 4 yük hücresi olan tip)
 - HX711 modülü
